@@ -1,0 +1,16 @@
+[
+{
+  "modid": "ProjectPlanner",
+  "name": "Project Planner",
+  "description": "Plan your Minecraft projects in an easy way.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Dynious"],
+  "credits": "All of you! <3",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
