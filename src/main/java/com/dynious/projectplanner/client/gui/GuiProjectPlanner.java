@@ -1,8 +1,19 @@
 package com.dynious.projectplanner.client.gui;
 
+import codechicken.nei.LayoutManager;
 import com.dynious.projectplanner.lib.Resources;
+import com.dynious.projectplanner.project.CategoryHandler;
+import com.dynious.projectplanner.project.CategorySupplier;
+import com.dynious.projectplanner.project.IProject;
+import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
+import java.util.List;
 
 public class GuiProjectPlanner extends GuiProjectPlannerBase
 {
@@ -44,6 +55,8 @@ public class GuiProjectPlanner extends GuiProjectPlannerBase
         textField = new GuiTextField(fontRendererObj, xPos + 25, yPos + 9, 128, 12);
         textField.setFocused(true);
         textField.setCanLoseFocus(false);
+        textField.setText(LayoutManager.searchField.text());
+        CategoryHandler.INSTANCE.updateProjectListFromText(textField.getText());
 
         scrollBarXPos = xPos + SCROLLBAR_X_START_POS;
         scrollBarYPos = yPos + SCROLLBAR_Y_START_POS;
@@ -62,6 +75,13 @@ public class GuiProjectPlanner extends GuiProjectPlannerBase
 
         checkMouseMovement(yPos, mouseY);
 
+        List<IProject> projectList = CategoryHandler.INSTANCE.getProjects();
+        if (listLength != projectList.size())
+        {
+            listLength = projectList.size();
+            recalculateScrollBar();
+        }
+
         int scrollAmount = scroll % (PART_HEIGHT + 1);
         int startIndex = 2*(scroll / (PART_HEIGHT + 1));
 
@@ -69,6 +89,8 @@ public class GuiProjectPlanner extends GuiProjectPlannerBase
         {
             if ((i + startIndex) >= listLength)
                 break;
+
+            IProject project = projectList.get(startIndex + i);
 
             int x = 10 + (i % 2 == 1 ? 74 : 0);
             int y = 28 + ((i / 2) * 31) - scrollAmount;
@@ -87,6 +109,26 @@ public class GuiProjectPlanner extends GuiProjectPlannerBase
 
         super.drawScreen(mouseX, mouseY, partialTick);
         textField.drawTextBox();
+
+        for (int i = 0; i < 10; i++)
+        {
+            if ((i + startIndex) >= listLength)
+                break;
+
+            IProject project = projectList.get(startIndex + i);
+
+            int x = 10 + (i % 2 == 1 ? 74 : 0);
+            int y = 28 + ((i / 2) * 31) - scrollAmount;
+
+            if (y >= 27)
+            {
+                drawObject(project.getIconObject(), xPos + x + 5, yPos + y + 5);
+            }
+            else
+            {
+                drawObject(project.getIconObject(), xPos + x + 5, yPos + y + 5);
+            }
+        }
     }
 
     private void checkMouseMovement(int yPos, int mouseY)
@@ -107,8 +149,42 @@ public class GuiProjectPlanner extends GuiProjectPlannerBase
 
     private void recalculateScrollBar()
     {
+        if (listLength < 8)
+        {
+            scrollBarLength = SCROLLBAR_MAX_HEIGHT;
+            return;
+        }
         int listHeight = ((listLength/2 + listLength%2)*31);
         scrollBarLength = (SCROLLBAR_MAX_HEIGHT * LIST_SCREEN_HEIGHT) / listHeight;
+    }
+
+    private void drawObject(Object object, int x, int y)
+    {
+        if (object instanceof IIcon)
+        {
+            drawTexturedModelRectFromIcon(x, y, (IIcon) object, 16, 16);
+        }
+        else
+        {
+            ItemStack stack;
+            if (object instanceof ItemStack)
+                stack = (ItemStack) object;
+            else if (object instanceof Item)
+                stack = new ItemStack((Item) object);
+            else if (object instanceof Block)
+                stack = new ItemStack((Block) object);
+            else
+                return;
+
+            this.zLevel = 100.0F;
+            itemRender.zLevel = 100.0F;
+            GL11.glEnable(GL11.GL_LIGHTING);
+            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+            itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
+            itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), stack, x, y);
+            GL11.glDisable(GL11.GL_LIGHTING);
+            this.zLevel = 0.0F;
+        }
     }
 
     @Override
@@ -139,7 +215,7 @@ public class GuiProjectPlanner extends GuiProjectPlannerBase
 
         if (textField.textboxKeyTyped(character, p_73869_2_))
         {
-            //TODO: search & update scrollbar
+            CategoryHandler.INSTANCE.updateProjectListFromText(textField.getText());
         }
     }
 }

@@ -25,6 +25,14 @@ minecraft {
     version = "1.7.10-10.13.3.1389-1710ls"
 }
 
+repositories {
+    mavenCentral()
+    maven {
+        name = "chickenbones"
+        url = "http://chickenbones.net/maven"
+    }
+}
+
 dependencies {
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
@@ -39,6 +47,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+	compile "codechicken:NotEnoughItems:1.7.10-1.0.3.74:dev"
 }
 
 processResources

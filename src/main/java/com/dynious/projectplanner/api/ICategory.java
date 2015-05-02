@@ -5,7 +5,7 @@ public interface ICategory
     /**
      * This is an array of the names of your category. The first name will be the one used as display name.
      * You can add more entries to the array that act like nicknames, so your category shows up even if
-     * users don't use the technically correct them for it.
+     * users don't use the technically correct term for it.
      *
      * @return An array of names for the category.
      */
